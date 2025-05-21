@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Reflection.Metadata.Ecma335;
+using System.Text.RegularExpressions;
+
 
 class Jugador
 {
@@ -25,7 +27,7 @@ class Jugador
     }
     public string Nickname
     {
-        get { return nickname; }set { nickname = value; }
+        get { return nickname; } set { nickname = value; }
     }
     public Jugador(char[,] FlotaNaval, char[,] MatrizAtaque, int PuntosJugador, string Nickname)
     {
@@ -103,12 +105,12 @@ class Jugador
         while (!puesto)
         {
             int fila = random.Next(0, 6);
-            int columna = random.Next(0, 5); 
+            int columna = random.Next(0, 5);
 
             if (PuedeColocar(fila, columna, 2, false, flotaNaval))
             {
-                
-                ColocarBarco(fila, columna, 2, false, '■', flotaNaval); 
+
+                ColocarBarco(fila, columna, 2, false, '■', flotaNaval);
                 puesto = true;
             }
         }
@@ -122,7 +124,7 @@ class Jugador
 
         while (!puesto)
         {
-            int fila = random.Next(0, 4); 
+            int fila = random.Next(0, 4);
             int columna = random.Next(0, 6);
 
             if (PuedeColocar(fila, columna, 3, true, flotaNaval))
@@ -149,7 +151,7 @@ class Jugador
             if (PuedeColocar(fila, columna, 4, vertical, flotaNaval))
             {
 
-                ColocarBarco(fila, columna, 4, vertical, '■', flotaNaval); 
+                ColocarBarco(fila, columna, 4, vertical, '■', flotaNaval);
                 puesto = true;
             }
         }
@@ -157,15 +159,19 @@ class Jugador
     }
     public static void GenerarColor(char[,] flotaNaval, int fila, int columna)
     {
+
         switch (flotaNaval[fila, columna])
         {
             case '■':
-                Console.ForegroundColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.Green;
 
                 break;
             case '≈':
                 Console.ForegroundColor = ConsoleColor.DarkBlue;
 
+                break;
+            case '#':
+                Console.ForegroundColor = ConsoleColor.Red;
                 break;
             default:
                 Console.ResetColor();
@@ -181,15 +187,15 @@ class Jugador
 
         Console.WriteLine($"     1   2   3   4   5   6 ");
         char[] letras = ['a', 'b', 'c', 'd', 'e', 'f'];
-        
+
         for (int fila = 0; fila < 6; fila++)
         {
-            
+
             Console.Write($"{letras[fila]}    ");
             for (int columna = 0; columna < 6; columna++)
             {
                 GenerarColor(flotaNaval, fila, columna);
-                Console.Write(flotaNaval[fila, columna] == ' ' ? "." :   flotaNaval[fila, columna]);
+                Console.Write(flotaNaval[fila, columna] == ' ' ? "." : flotaNaval[fila, columna]);
                 Console.Write($"   ");
                 Console.ResetColor();
             }
@@ -203,21 +209,52 @@ class Jugador
             if (string.IsNullOrEmpty(dato) || string.IsNullOrWhiteSpace(dato))
             {
                 Console.WriteLine($"Vuelva a ingresar el dato, es invalido");
-                dato = Console.ReadLine();
+                dato = Console.ReadLine().ToLower().Trim();
             }
             else
             {
                 return dato;
-                
+
             }
+
         }
     }
+    public static bool SeguirJugando(ref bool jugando, string nickname)
+    {
+        bool correcto = true;
+        Console.WriteLine($"Que deseas hacer \n Seguir \t Rendirse");
+        string opcion = Console.ReadLine().ToLower().Trim();
+        opcion = VerificarString(opcion);
+        while (correcto)
+        {
+            if (opcion == "seguir")
+            {
+                jugando = true;
+                correcto = false;
+            }
+            else if (opcion == "rendirse")
+            {
+                Console.WriteLine($"que mal, haz perdido {nickname}");
+                jugando = false;
+                correcto = false;
+            }
+
+            else
+            {
+                Console.WriteLine($"Ingresa una opcion valida");
+                opcion = Console.ReadLine().ToLower();
+                correcto = true;
+            }
+        }
+        return jugando;
+    }
+
     public static int VerificarInt(int datoNumerico)
     {
 
         while (true)
         {
-            if(!int.TryParse(Console.ReadLine(), out datoNumerico) && datoNumerico > 0)
+            if (!int.TryParse(Console.ReadLine(), out datoNumerico) && datoNumerico > 0)
             {
                 Console.WriteLine($"Ingrese un dato correcto");
                 Console.ReadLine();
@@ -238,12 +275,12 @@ class Jugador
             }
         }
     }
-    public static void DibujarTablero(string nickname, int puntosJugador, char[,] flotaNaval, char[,] matrizAtaque  )
+    public static void DibujarTablero(string nickname, int puntosJugador, char[,] flotaNaval, char[,] matrizAtaque)
     {
 
         string opcion;
         bool Notrue = true;
-        
+
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"Jugador {nickname} \t Puntos: {puntosJugador} ");
         Console.WriteLine($"\n");
@@ -251,7 +288,7 @@ class Jugador
         Console.ResetColor();
         GenerarMatrizAleatoria(flotaNaval);
         Console.WriteLine($"Te parece la posicion de los barcos? \nSi   \nNo");
-        opcion= Console.ReadLine().ToLower().Trim();
+        opcion = Console.ReadLine().ToLower().Trim();
 
         opcion = VerificarString(opcion);
         while (Notrue)
@@ -262,7 +299,7 @@ class Jugador
                 opcion = Console.ReadLine().ToLower().Trim();
                 VerificarString(opcion);
 
-                
+
             }
             else
             {
@@ -293,19 +330,19 @@ class Jugador
         Console.WriteLine($"Presione enter");
         Console.ReadKey();
     }
-    public static void Ataque(string nickname, int puntosJugador, char[,] matrizAtaque, char[,] flotaNaval)
+    public static void Ataque(string nickname, int puntosJugador, char[,] matrizAtaque, char[,] flotaNaval, int turnos)
     {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"Jugador {nickname} \t Puntos: {puntosJugador} ");
+        Console.WriteLine($"Jugador {nickname} \t Puntos: {puntosJugador} \t turnos: {turnos}");
         Console.WriteLine($"\n");
-        Console.WriteLine($"Flota Naval   \t\t\tTablero de ataque");
+        Console.WriteLine($"Flota Naval   \t\t\t\tTablero de ataque");
         Console.ResetColor();
         Console.WriteLine($"     1    2    3    4    5    6 \t     1    2    3    4    5    6 ");
         char[] letras = ['a', 'b', 'c', 'd', 'e', 'f'];
-        for (int fila = 0; fila < 6; fila ++)
+        for (int fila = 0; fila < 6; fila++)
         {
             Console.Write($"{letras[fila]}    ");
-            for (int columna = 0; columna < 6; columna ++)
+            for (int columna = 0; columna < 6; columna++)
             {
                 GenerarColor(flotaNaval, fila, columna);
                 Console.Write($"{flotaNaval[fila, columna]}    ");
@@ -313,7 +350,7 @@ class Jugador
             Console.Write($"\t");
             Console.ResetColor();
             Console.Write($"{letras[fila]}    ");
-            for (int columna = 0; columna < 6; columna ++)
+            for (int columna = 0; columna < 6; columna++)
             {
                 Console.Write($"{matrizAtaque[fila, columna]}    ");
             }
@@ -321,16 +358,55 @@ class Jugador
             Console.ResetColor();
         }
     }
-    public static void LeerCoordenadas(string coordenadas)
+    public static bool Victoria(string nickname1, string nickname2, int puntosJ1, int puntosJ2, int turnos)
     {
-        coordenadas = "";
-        string[] Coordenadas = coordenadas.Split('-');
-        char letra = Coordenadas[0][0] ; 
-        int fila = letra - 'a';
-        int numero = int.Parse(Coordenadas[1]); 
-        int columna = numero - 1;
+        if (turnos < 15)
+        {
+            if (puntosJ1 == 9)
+            {
+                Console.WriteLine($"Felicidades {nickname1} haz ganado el duelo en contra de {nickname2}");
+                return false;
+            }
+            if (puntosJ2 == 9)
+            {
+                Console.WriteLine($"Felicidades {nickname2} haz ganado el duelo en contra de {nickname1}");
+                return false;
+            }
+        }
+        else
+        {
+            if (puntosJ1 > puntosJ2)
+            {
+                Console.WriteLine($"Felicidades {nickname1} haz ganado el duelo en contra de {nickname2}");
+                return false;
+            }
+            if (puntosJ2 > puntosJ1)
+            {
+                Console.WriteLine($"Felicidades {nickname2} haz ganado el duelo en contra de {nickname1}");
+                return false;
+            }
+            else
+            {
+                Console.WriteLine($"Felicidades, han jugado los 15 turnos y ninguno ha logrado sacar ventaja, han empatado, esperamos y vuelvas a jugar");
+                return false;
+            }
+
+        }
+        return true;
+
     }
-    public static void VerificarCasilla(string coordenadas, char[,] matrizAtaque, char[,] flotaNaval)
+
+
+    public static void LeerCoordenadas(string coordenadas, ref int fila, ref int columna)
+    {
+
+        string[] Coordenadas = coordenadas.Split('-');
+        char letra = Coordenadas[0][0];
+        fila = char.ToLower(letra) - 'a';
+        int numero = int.Parse(Coordenadas[1]);
+        columna = numero - 1;
+    }
+    public static void VerificarCasilla(ref string coordenadas, char[,] matrizAtaque, char[,] flotaNaval)
     {
         string patron = @"^[a-f]-[1-6]$";
         int fila = 0;
@@ -339,41 +415,40 @@ class Jugador
         {
             if (!Regex.IsMatch(coordenadas, patron))
             {
-                Console.WriteLine($"'{coordenadas}' NO es una coordenada válida.");
-                coordenadas = Console.ReadLine();
-
+                Console.WriteLine($"'{coordenadas}' NO es una coordenada válida. ej (F-3)");
             }
             else
             {
-                LeerCoordenadas(coordenadas);
+                LeerCoordenadas(coordenadas, ref fila, ref columna);
 
-                while (true)
+                if (matrizAtaque[fila, columna] == '~')
                 {
-                    if ((matrizAtaque[fila, columna]) != '~')
-                    {
-                        Console.WriteLine($"Al parecer ya haz atacado aqui, prueba con otra coordenada.");
-                        coordenadas = Console.ReadLine();
-                    }
-                    else
-                        break;
+
+                    break;
                 }
-                break;
+                else
+                {
+                    Console.WriteLine($"Al parecer ya haz atacado aqui, prueba con otra coordenada.");
+                }
             }
+
+
+            coordenadas = Console.ReadLine().ToLower().Trim();
         }
-
-
-
     }
-    public static void Atacar(char[,] flotaNaval, char[,] matrizAtaque, string coordenadas)
+    public static void Atacar(char[,] flotaNaval, char[,] matrizAtaque, string coordenadas, ref int puntosJ1)
     {
         int fila = 0;
         int columna = 0;
-        LeerCoordenadas(coordenadas);
+        LeerCoordenadas(coordenadas, ref fila, ref columna);
 
             if (flotaNaval[fila, columna] == '■')
             {
                 matrizAtaque[fila, columna] = 'O';
-                flotaNaval[fila, columna] = '⊠';
+            
+                flotaNaval[fila, columna] = '#';
+                puntosJ1++;
+                
             }
             else
             {
@@ -387,7 +462,7 @@ class Jugador
         
         Console.Clear();
         Console.Write($"Cargando");
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 2; i++)
         {
             Thread.Sleep(1000);
             Console.Write($".");
@@ -397,6 +472,33 @@ class Jugador
         Console.ReadKey();
         Console.Clear();
     }
+    public static bool VolverAJugar(bool seguirJugando)
+    {
+        bool correcto = true;
+        Console.WriteLine($"Quieres seguir jugando \n Si \tNo");
+        string opcion = Console.ReadLine().ToLower().Trim();
+        VerificarString(opcion);
+        while (correcto)
+            if (opcion != "si" && opcion != "no")
+            {
+                seguirJugando = true;
+                correcto = false;
+            }
+            else if (opcion == "no")
+            {
+                Console.WriteLine($"que mal, te esperamos a la proxima");
+                seguirJugando = false;
+                correcto = false;
+            }
+
+            else if (opcion == "si")
+            {
+                seguirJugando = true;
+                correcto = false;
+            }
+        return seguirJugando;
+
+    }
 
 
 }
@@ -404,53 +506,63 @@ class Principal
 {   
     static void Main()
     {
-        Console.WriteLine($"Ingrese Su nickname");
-        string nickname1 = Console.ReadLine();
-        nickname1 = Jugador.VerificarString(nickname1);
-        int puntosj1 = 0;
-        int puntosj2 = 0;
+        bool jugarDeNuevo = true;
+        while (jugarDeNuevo)
+        {
+            Console.Clear();
+            Console.WriteLine($"Ingrese Su nickname");
+            string nickname1 = Console.ReadLine();
+            nickname1 = Jugador.VerificarString(nickname1);
+            int puntosj1 = 0;
+            int puntosj2 = 0;
+            int turnos = 0;
+            bool jugando = true;
 
-        char[,] flotaNaval1 = new char[6, 6];
-        char[,] matrizAtaque1 = new char[6, 6];
-        char[,] flotaNaval2 = new char[6, 6];
-        char[,] matrizAtaque2 = new char[6, 6];
+            char[,] flotaNaval1 = new char[6, 6];
+            char[,] matrizAtaque1 = new char[6, 6];
+            char[,] flotaNaval2 = new char[6, 6];
+            char[,] matrizAtaque2 = new char[6, 6];
 
-        Jugador jugador1 = new Jugador(flotaNaval1, matrizAtaque1, puntosj1, nickname1);
-        
-        Jugador.DibujarTablero(nickname1, puntosj1, flotaNaval1, matrizAtaque1);
-        Jugador.PantallaDeCarga();
-        
-        Console.WriteLine($"Ingrese Su nickname");
-        string nickname2 = Console.ReadLine();
-        nickname2 = Jugador.VerificarString(nickname2);
-        Jugador jugador2 = new Jugador(flotaNaval2, matrizAtaque2, puntosj2, nickname2);
-        
+            Jugador jugador1 = new Jugador(flotaNaval1, matrizAtaque1, puntosj1, nickname1);
 
-        
-        Jugador.DibujarTablero(nickname2 , puntosj2, flotaNaval2, matrizAtaque2);
-        Jugador.PantallaDeCarga();
-        Jugador.Ataque(nickname1, puntosj1, matrizAtaque1, flotaNaval1);
-        Console.WriteLine($"Ingrese la coordenada que quiere atacar Ej. (F-3)");
-        string coordenadas1 = Console.ReadLine().ToLower().Trim();
-        Jugador.VerificarCasilla(coordenadas1, matrizAtaque1, flotaNaval1);
-        Jugador.Atacar(flotaNaval2, matrizAtaque1, coordenadas1);
-        Jugador.PantallaDeCarga();
-        Jugador.Ataque(nickname2, puntosj2, matrizAtaque2, flotaNaval2);
-        Console.WriteLine($"Ingrese la coordenada que quiere atacar Ej. (F-3)");
-        string coordenadas2 = Console.ReadLine().ToLower().Trim();
-        Jugador.VerificarCasilla(coordenadas2, matrizAtaque2, flotaNaval2);
-        Jugador.Atacar(flotaNaval1, matrizAtaque2, coordenadas2);
-        Jugador.PantallaDeCarga();
-        Jugador.Ataque(nickname1, puntosj1, matrizAtaque1, flotaNaval1);
-        Console.WriteLine($"Ingrese la coordenada que quiere atacar Ej. (F-3)");
-        coordenadas1 = Console.ReadLine().ToLower().Trim();
-        Jugador.VerificarCasilla(coordenadas1, matrizAtaque1, flotaNaval1);
-        Jugador.Atacar(flotaNaval2, matrizAtaque1, coordenadas1);
-        Jugador.PantallaDeCarga();
-        Jugador.Ataque(nickname2, puntosj2, matrizAtaque2, flotaNaval2);
-        Console.WriteLine($"Ingrese la coordenada que quiere atacar Ej. (F-3)");
-        coordenadas2 = Console.ReadLine().ToLower().Trim();
-        Jugador.VerificarCasilla(coordenadas2, matrizAtaque2, flotaNaval2);
-        Jugador.Atacar(flotaNaval1, matrizAtaque2, coordenadas2);
+            Jugador.DibujarTablero(nickname1, puntosj1, flotaNaval1, matrizAtaque1);
+            Jugador.PantallaDeCarga();
+
+            Console.WriteLine($"Ingrese Su nickname");
+            string nickname2 = Console.ReadLine();
+            nickname2 = Jugador.VerificarString(nickname2);
+            Jugador jugador2 = new Jugador(flotaNaval2, matrizAtaque2, puntosj2, nickname2);
+
+
+
+            Jugador.DibujarTablero(nickname2, puntosj2, flotaNaval2, matrizAtaque2);
+            Jugador.PantallaDeCarga();
+            while (jugando)
+            {
+                Jugador.Ataque(nickname1, puntosj1, matrizAtaque1, flotaNaval1, turnos);
+                if(!(jugando = Jugador.SeguirJugando(ref jugando, nickname2)))
+                {
+                    continue;
+                }
+                Console.WriteLine($"Ingrese la coordenada que quiere atacar Ej. (F-3)");
+                string coordenadas1 = Console.ReadLine().ToLower().Trim();
+                Jugador.VerificarCasilla(ref coordenadas1, matrizAtaque1, flotaNaval1);
+                Jugador.Atacar(flotaNaval2, matrizAtaque1, coordenadas1, ref puntosj1);
+                Jugador.PantallaDeCarga();
+                Jugador.Ataque(nickname2, puntosj2, matrizAtaque2, flotaNaval2, turnos);
+                if (!(jugando = Jugador.SeguirJugando(ref jugando, nickname2)))
+                {
+                    continue;
+                }
+                Console.WriteLine($"Ingrese la coordenada que quiere atacar Ej. (F-3)");
+                string coordenadas2 = Console.ReadLine().ToLower().Trim();
+                Jugador.VerificarCasilla(ref coordenadas2, matrizAtaque2, flotaNaval2);
+                Jugador.Atacar(flotaNaval1, matrizAtaque2, coordenadas2,ref puntosj2);
+                Jugador.PantallaDeCarga();
+                turnos++;
+                jugando = Jugador.Victoria(nickname1, nickname2, puntosj1, puntosj2, turnos);
+            }
+            jugarDeNuevo = Jugador.VolverAJugar(jugarDeNuevo);
+        }
     }
 }
